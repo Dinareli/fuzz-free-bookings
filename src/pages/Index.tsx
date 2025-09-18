@@ -85,69 +85,96 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden">
-        {/* Background with gradient overlay */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${heroImage})` }}
-        >
-          <div className="absolute inset-0 hero-gradient"></div>
-        </div>
-        
-        <div className="relative container mx-auto px-4 py-24 lg:py-32">
-          <div className="max-w-4xl mx-auto text-center space-y-8 animate-slide-up">
-            <Badge variant="secondary" className="glass-card animate-pulse-soft">
-              <Star className="h-3 w-3 mr-1" />
-              Sistema #1 para Barbearias
-            </Badge>
-            
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight">
-              <span className="text-foreground">Gerencie sua</span><br />
-              <span className="bg-gradient-primary bg-clip-text text-transparent">
-                Barbearia Online
-              </span>
-            </h1>
-            
-            <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Sistema completo de marcação de horários para barbearias. 
-              <strong className="text-foreground"> Organize seus clientes, profissionais e serviços </strong>
-              de forma simples e eficiente.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button 
-                size="lg" 
-                className="interactive-glow interactive-scale text-lg px-8 py-6"
-                onClick={() => setShowBookingForm(true)}
-              >
-                <Calendar className="h-5 w-5 mr-2" />
-                Agendar Agora
-                <ArrowRight className="h-5 w-5 ml-2" />
-              </Button>
+      <section className="py-12 lg:py-20">
+        <div className="container mx-auto px-4">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            {/* Left Column - Content */}
+            <div className="space-y-8 animate-slide-up">
+              <Badge variant="secondary" className="w-fit">
+                <Star className="h-3 w-3 mr-1" />
+                Sistema Completo de Agendamento
+              </Badge>
               
-              <Button 
-                variant="outline" 
-                size="lg"
-                className="glass-card text-lg px-8 py-6"
-              >
-                <Phone className="h-5 w-5 mr-2" />
-                (11) 99999-9999
-              </Button>
+              <div className="space-y-6">
+                <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
+                  <span className="text-foreground">Revolucione sua</span><br />
+                  <span className="bg-gradient-primary bg-clip-text text-transparent">
+                    Barbearia
+                  </span>
+                </h1>
+                
+                <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-lg">
+                  Sistema profissional de agendamento que simplifica a gestão da sua barbearia 
+                  e melhora a experiência dos seus clientes.
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Button 
+                  size="lg" 
+                  className="text-base px-6 py-3"
+                  onClick={() => setShowBookingForm(true)}
+                >
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Começar Agendamento
+                </Button>
+                
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  className="text-base px-6 py-3"
+                >
+                  <Star className="h-4 w-4 mr-2" />
+                  Ver Funcionalidades
+                </Button>
+              </div>
+              
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-6 pt-8">
+                <div>
+                  <div className="text-2xl md:text-3xl font-bold text-primary">500+</div>
+                  <div className="text-sm text-muted-foreground">Barbearias</div>
+                </div>
+                <div>
+                  <div className="text-2xl md:text-3xl font-bold text-primary">10k+</div>
+                  <div className="text-sm text-muted-foreground">Agendamentos</div>
+                </div>
+                <div>
+                  <div className="text-2xl md:text-3xl font-bold text-primary">98%</div>
+                  <div className="text-sm text-muted-foreground">Satisfação</div>
+                </div>
+              </div>
             </div>
             
-            {/* Stats */}
-            <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-12">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">500+</div>
-                <div className="text-sm text-muted-foreground">Clientes Atendidos</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">3</div>
-                <div className="text-sm text-muted-foreground">Profissionais</div>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary">4.9</div>
-                <div className="text-sm text-muted-foreground">Avaliação</div>
+            {/* Right Column - Visual */}
+            <div className="relative animate-slide-up" style={{ animationDelay: '0.2s' }}>
+              <div className="relative">
+                <img 
+                  src={heroImage} 
+                  alt="Barbearia moderna com ambiente profissional"
+                  className="w-full h-[500px] lg:h-[600px] object-cover rounded-2xl shadow-2xl"
+                />
+                
+                {/* Floating Cards */}
+                <div className="absolute top-4 right-4 bg-background/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 shadow-lg animate-pulse-soft">
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span className="font-medium">Agendamento Confirmado</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">João Silva - 14:30</div>
+                </div>
+                
+                <div className="absolute bottom-4 left-4 bg-background/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 shadow-lg">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                      <Users className="h-4 w-4 text-primary-foreground" />
+                    </div>
+                    <div>
+                      <div className="font-medium text-sm">5 Barbeiros Disponíveis</div>
+                      <div className="text-xs text-muted-foreground">Hoje: 8h às 18h</div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
