@@ -119,9 +119,10 @@ export function BookingForm() {
     
     const service = services.find(s => s.id === formData.serviceId);
     const professional = professionals.find(p => p.id === formData.professionalId);
+    const timeSlot = timeSlots.find(t => t.id === formData.timeSlot);
     const dateStr = formData.date?.toLocaleDateString("pt-BR");
     
-    const message = `🗓️ *Agendamento Confirmado*%0A%0A👤 Cliente: ${formData.clientName}%0A📞 Telefone: ${formData.clientPhone}%0A✂️ Serviço: ${service?.name}%0A💰 Valor: R$ ${service?.price}%0A👨‍💼 Profissional: ${professional?.name}%0A📅 Data: ${dateStr}%0A🕐 Horário: ${formData.timeSlot}%0A${formData.observations ? `📝 Observações: ${formData.observations}` : ""}`;
+    const message = `🗓️ *Agendamento Confirmado*%0A%0A👤 Cliente: ${formData.clientName}%0A📞 Telefone: ${formData.clientPhone}%0A✂️ Serviço: ${service?.name}%0A💰 Valor: R$ ${service?.price}%0A👨‍💼 Profissional: ${professional?.name}%0A📅 Data: ${dateStr}%0A🕐 Horário: ${timeSlot?.time}%0A${formData.observations ? `📝 Observações: ${formData.observations}` : ""}`;
     
     const whatsappUrl = `https://wa.me/5511999999999?text=${message}`;
     

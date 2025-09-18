@@ -156,13 +156,6 @@ const Index = () => {
                 />
                 
                 {/* Floating Cards */}
-                <div className="absolute top-4 right-4 bg-background/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 shadow-lg animate-pulse-soft">
-                  <div className="flex items-center gap-2 text-sm">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="font-medium">Agendamento Confirmado</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">João Silva - 14:30</div>
-                </div>
                 
                 <div className="absolute bottom-4 left-4 bg-background/95 backdrop-blur-sm border border-border/50 rounded-xl p-4 shadow-lg">
                   <div className="flex items-center gap-3">
