@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { createBlock, createReservation, deleteBlock, deleteReservation, listBlocks, listReservations } from "@/lib/api";
+import { BlockDTO, ReservationDTO, createBlock, createReservation, deleteBlock, deleteReservation, listBlocks, listReservations } from "@/lib/api";
 import { Clock, Plus, Trash2 } from "lucide-react";
 
 const timeOptions = [
@@ -24,8 +24,8 @@ const timeOptions = [
 export default function AdminHome() {
   const { user } = useAuth();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
-  const [blocks, setBlocks] = useState<any[]>([]);
-  const [reservations, setReservations] = useState<any[]>([]);
+  const [blocks, setBlocks] = useState<BlockDTO[]>([]);
+  const [reservations, setReservations] = useState<ReservationDTO[]>([]);
   const [newTime, setNewTime] = useState<string>("");
 
   const dateKey = useMemo(() => {
@@ -40,8 +40,8 @@ export default function AdminHome() {
     if (!user || !dateKey) return;
     (async () => {
       const [resv, blks] = await Promise.all([
-        listReservations(dateKey, user.id, user.username ? (user as any).professionalId : undefined),
-        listBlocks(dateKey, user.id, (user as any).professionalId),
+        listReservations(dateKey, user.id, user.professionalId),
+        listBlocks(dateKey, user.id, user.professionalId),
       ]);
       setReservations(resv);
       setBlocks(blks);
@@ -52,13 +52,13 @@ export default function AdminHome() {
 
   const handleBlockDay = async () => {
     if (!user || !dateKey) return;
-    const created = await createBlock({ dateKey, adminId: user.id, professionalId: (user as any).professionalId });
+    const created = await createBlock({ dateKey, adminId: user.id, professionalId: user.professionalId });
     setBlocks(prev => [...prev, created]);
   };
 
   const handleUnblockDay = async () => {
     const block = blocks.find(b => b.dateKey === dateKey && !b.timeSlotId);
-    if (!block) return;
+    if (!block || typeof block.id !== 'number') return;
     await deleteBlock(block.id);
     setBlocks(prev => prev.filter(b => b.id !== block.id));
   };
@@ -67,12 +67,13 @@ export default function AdminHome() {
     if (!user || !dateKey || !newTime) return;
     const option = timeOptions.find(t => t.id === newTime);
     if (!option) return;
-    const created = await createReservation({ dateKey, timeSlotId: option.id, adminId: user.id, professionalId: (user as any).professionalId });
+    const created = await createReservation({ dateKey, timeSlotId: option.id, adminId: user.id, professionalId: user.professionalId });
     setReservations(prev => [...prev, created]);
     setNewTime("");
   };
 
-  const handleRemoveTime = async (id: number) => {
+  const handleRemoveTime = async (id: number | undefined) => {
+    if (typeof id !== 'number') return;
     await deleteReservation(id);
     setReservations(prev => prev.filter(r => r.id !== id));
   };

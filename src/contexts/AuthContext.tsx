@@ -4,6 +4,7 @@ interface User {
   id: number;
   username: string;
   name: string;
+  professionalId: string;
 }
 
 interface AuthContextValue {
@@ -28,10 +29,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = useCallback(async (username: string, password: string) => {
     const res = await fetch(`${API_URL}/users?username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`);
     if (!res.ok) throw new Error("Erro ao autenticar");
-    const data: Array<{ id: number; username: string; name: string } & { password?: string }> = await res.json();
+    const data: Array<User & { password?: string }> = await res.json();
     const found = data[0];
     if (!found) throw new Error("Credenciais inválidas");
-    const sanitized: User = { id: found.id, username: found.username, name: found.name };
+    const { password, ...sanitized } = found;
     setUser(sanitized);
     localStorage.setItem("auth_user", JSON.stringify(sanitized));
   }, []);
