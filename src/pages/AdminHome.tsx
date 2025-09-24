@@ -6,7 +6,8 @@ import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createBlock, createReservation, deleteBlock, deleteReservation, listBlocks, listReservations } from "@/lib/api";
-import { Clock, Plus } from "lucide-react";
+import { Clock, Plus, LogOut } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const timeOptions = [
   { id: "1", time: "08:00" },
@@ -22,7 +23,8 @@ const timeOptions = [
 ];
 
 export default function AdminHome() {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [blocks, setBlocks] = useState<any[]>([]);
   const [reservations, setReservations] = useState<any[]>([]);
@@ -77,10 +79,21 @@ export default function AdminHome() {
     setReservations(prev => prev.filter(r => r.id !== id));
   };
 
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 space-y-6">
-        <h1 className="text-2xl font-bold">Olá, {user?.name}</h1>
+        <div className="flex justify-between items-center">
+          <h1 className="text-2xl font-bold">Olá, {user?.name}</h1>
+          <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
+            <LogOut className="h-4 w-4" />
+            Sair
+          </Button>
+        </div>
 
         <Card>
           <CardHeader>
