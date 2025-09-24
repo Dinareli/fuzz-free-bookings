@@ -20,7 +20,7 @@ export default function Login() {
     setLoading(true);
     try {
       await login(username, password);
-      navigate("/");
+      navigate("/admin");
     } catch (err) {
       setError("Usuário ou senha inválidos");
     } finally {
