@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { BookingForm } from "@/components/BookingForm";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button as UIButton } from "@/components/ui/button";
 import { 
   Calendar, 
   Users, 
@@ -19,6 +21,7 @@ import heroImage from "@/assets/hero-image.jpg";
 
 const Index = () => {
   const [showBookingForm, setShowBookingForm] = useState(false);
+  const { isAuthenticated, logout, user } = useAuth();
 
   if (showBookingForm) {
     return (
@@ -39,6 +42,11 @@ const Index = () => {
                 ← Voltar ao início
               </Button>
               <ThemeToggle />
+              {isAuthenticated && (
+                <UIButton variant="outline" onClick={logout}>
+                  Sair
+                </UIButton>
+              )}
             </div>
           </div>
         </header>
@@ -80,6 +88,11 @@ const Index = () => {
               </a>
             </nav>
             <ThemeToggle />
+            {isAuthenticated && (
+              <UIButton variant="outline" onClick={logout}>
+                Sair
+              </UIButton>
+            )}
           </div>
         </div>
       </header>
@@ -120,12 +133,15 @@ const Index = () => {
                 </Button>
                 
                 <Button 
+                  asChild
                   variant="outline" 
                   size="lg"
                   className="text-base px-6 py-3"
                 >
-                  <Star className="h-4 w-4 mr-2" />
-                  Ver Funcionalidades
+                  <a href="#features">
+                    <Star className="h-4 w-4 mr-2" />
+                    Ver Funcionalidades
+                  </a>
                 </Button>
               </div>
               
@@ -329,9 +345,15 @@ const Index = () => {
               <Phone className="h-8 w-8 text-primary mx-auto" />
               <h3 className="text-xl font-semibold">Telefone</h3>
               <p className="text-muted-foreground">(11) 99999-9999</p>
-              <Button variant="outline" className="interactive-scale">
-                <MessageCircle className="h-4 w-4 mr-2" />
-                WhatsApp
+              <Button asChild variant="outline" className="interactive-scale">
+                <a
+                  href="https://wa.me/5511999999999?text=Ol%C3%A1%2C%20gostaria%20de%20saber%20mais%20sobre%20o%20Calendar%20Barber."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  WhatsApp
+                </a>
               </Button>
             </div>
             

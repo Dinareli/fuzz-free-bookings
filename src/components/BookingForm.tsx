@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,9 @@ import {
   RotateCcw
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import { createReservation, listReservations, listBlocks } from "@/lib/api";
+import { useAuth } from "@/contexts/AuthContext";
+import { useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
 type BookingStep = "service" | "professional" | "datetime" | "contact" | "confirmation";
@@ -70,6 +73,11 @@ const timeSlots: TimeSlot[] = [
 ];
 
 export function BookingForm() {
+  const { user } = useAuth();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const publicAdminId = searchParams.get("adminId");
+  const effectiveAdminId = user?.id ?? (publicAdminId ? Number(publicAdminId) : 1);
   const [currentStep, setCurrentStep] = useState<BookingStep>("service");
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -81,6 +89,33 @@ export function BookingForm() {
     clientPhone: "",
     observations: "",
   });
+
+  // Persistência local de horários bloqueados por data
+  const [reservedSlotsByDate, setReservedSlotsByDate] = useState<Record<string, string[]>>(() => {
+    try {
+      const stored = localStorage.getItem("reservedSlotsByDate");
+      return stored ? JSON.parse(stored) : {};
+    } catch (err) {
+      console.warn("Não foi possível ler reservas do localStorage", err);
+      return {};
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("reservedSlotsByDate", JSON.stringify(reservedSlotsByDate));
+    } catch (err) {
+      console.warn("Não foi possível salvar reservas no localStorage", err);
+    }
+  }, [reservedSlotsByDate]);
+
+  const getDateKey = useCallback((date?: Date) => {
+    if (!date) return "";
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }, []);
 
   const handleStepForward = useCallback(() => {
     const steps: BookingStep[] = ["service", "professional", "datetime", "contact", "confirmation"];
@@ -126,6 +161,24 @@ export function BookingForm() {
     
     const whatsappUrl = `https://wa.me/5511999999999?text=${message}`;
     
+    // Bloquear o horário selecionado na data escolhida (API + cache local)
+    const dateKey = getDateKey(formData.date);
+    if (dateKey && formData.timeSlot) {
+      try {
+        await createReservation({ dateKey, timeSlotId: formData.timeSlot, adminId: effectiveAdminId, professionalId: formData.professionalId });
+        setReservedSlotsByDate(prev => {
+          const current = prev[dateKey] ? [...prev[dateKey]] : [];
+          if (!current.includes(formData.timeSlot)) {
+            current.push(formData.timeSlot);
+          }
+          return { ...prev, [dateKey]: current };
+        });
+      } catch (err) {
+        console.error(err);
+        toast({ title: "Erro ao reservar horário", description: "Tente novamente em instantes" });
+      }
+    }
+
     setIsLoading(false);
     
     toast({
@@ -136,7 +189,35 @@ export function BookingForm() {
     setTimeout(() => {
       window.open(whatsappUrl, "_blank");
     }, 1000);
-  }, [formData]);
+  }, [formData, getDateKey, effectiveAdminId]);
+
+  useEffect(() => {
+    const dateKey = getDateKey(formData.date);
+    if (!dateKey) return;
+    (async () => {
+      try {
+        const [reservations, blocks] = await Promise.all([
+          listReservations(dateKey, effectiveAdminId, formData.professionalId || undefined),
+          listBlocks(dateKey, effectiveAdminId, formData.professionalId || undefined),
+        ]);
+        const ids = reservations.map(r => r.timeSlotId);
+        setReservedSlotsByDate(prev => ({ ...prev, [dateKey]: ids }));
+        // Se o dia estiver bloqueado, considerar todos horários indisponíveis
+        const dayBlocked = blocks.some(b => b.dateKey === dateKey && !b.timeSlotId);
+        if (dayBlocked) {
+          setReservedSlotsByDate(prev => ({ ...prev, [dateKey]: timeSlots.map(s => s.id) }));
+        } else {
+          // Bloqueios por horário
+          const blockedSlots = blocks.filter(b => !!b.timeSlotId).map(b => b.timeSlotId as string);
+          if (blockedSlots.length) {
+            setReservedSlotsByDate(prev => ({ ...prev, [dateKey]: Array.from(new Set([...(prev[dateKey] || []), ...blockedSlots])) }));
+          }
+        }
+      } catch (err) {
+        console.warn("Falha ao obter reservas da API", err);
+      }
+    })();
+  }, [formData.date, formData.professionalId, getDateKey, effectiveAdminId]);
 
   const selectedService = services.find(s => s.id === formData.serviceId);
   const selectedProfessional = professionals.find(p => p.id === formData.professionalId);
@@ -260,7 +341,14 @@ export function BookingForm() {
               <div>
                 <Label className="text-sm font-medium mb-3 block">Horários disponíveis</Label>
                 <div className="grid grid-cols-2 gap-2">
-                  {timeSlots.map((slot) => (
+                  {(() => {
+                    const dateKey = getDateKey(formData.date);
+                    const reservedForDate = dateKey ? (reservedSlotsByDate[dateKey] || []) : [];
+                    const derivedSlots = timeSlots.map((slot) => ({
+                      ...slot,
+                      available: slot.available && !reservedForDate.includes(slot.id),
+                    }));
+                    return derivedSlots.map((slot) => (
                     <Button
                       key={slot.id}
                       variant={formData.timeSlot === slot.id ? "default" : "outline"}
@@ -271,7 +359,8 @@ export function BookingForm() {
                       <Clock className="h-4 w-4 mr-1" />
                       {slot.time}
                     </Button>
-                  ))}
+                    ));
+                  })()}
                 </div>
               </div>
             </div>
