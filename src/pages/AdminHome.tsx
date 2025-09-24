@@ -6,7 +6,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { createBlock, createReservation, deleteBlock, deleteReservation, listBlocks, listReservations } from "@/lib/api";
-import { Clock, Plus, Trash2 } from "lucide-react";
+import { Clock, Plus } from "lucide-react";
 
 const timeOptions = [
   { id: "1", time: "08:00" },
@@ -126,7 +126,14 @@ export default function AdminHome() {
                     return (
                       <Button key={r.id} variant="outline" className="justify-between">
                         <span className="flex items-center"><Clock className="h-4 w-4 mr-2" />{time}</span>
-                        <Trash2 className="h-4 w-4" onClick={(e) => { e.preventDefault(); handleRemoveTime(r.id); }} />
+                        <Button 
+                          variant="destructive" 
+                          size="sm" 
+                          onClick={(e) => { e.preventDefault(); handleRemoveTime(r.id); }}
+                          className="ml-2 h-6 text-xs px-2"
+                        >
+                          Liberar Horário
+                        </Button>
                       </Button>
                     );
                   })}
